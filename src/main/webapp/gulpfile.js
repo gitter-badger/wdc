@@ -248,12 +248,12 @@ gulp.task('stop-sauce', function (cb) {
 });
 
 gulp.task('e2e-test', function (cb) {
-    // Disable SAUCE usage because of travis instability.
-    //if (process.env.SAUCE_USERNAME) {
-    //    runSequence('run-sauce', 'e2e-run-test', 'stop-sauce', cb);
-    //} else {
+    //Disable SAUCE usage because of travis instability.
+    if (process.env.SAUCE_USERNAME) {
+        runSequence('run-sauce', 'e2e-run-test', 'stop-sauce', cb);
+    } else {
         runSequence('e2e-run-test', cb);
-    //}
+    }
 });
 
 // Downloads the selenium webdriver
