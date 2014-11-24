@@ -289,6 +289,7 @@ define(['angular', 'angular-ui-router', 'angular-oclazyload',
         };
 
         EventPublisher.replacePageSubscriptions = function (subsriptions) {
+
             for (var emitterName in eventWires) {
                 if (eventWires.hasOwnProperty(emitterName)) {
                     delete eventWires[emitterName];

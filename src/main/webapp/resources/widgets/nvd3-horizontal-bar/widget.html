@@ -1,0 +1,67 @@
+<div  ng-controller="Nvd3HBarChartCtrl" style="overflow:auto;" >
+    <div nvd3 options="options" data="series"></div>
+    <div ng-show="globalConfig.designMode">
+         <span style="font-size: smaller">
+             Examples:
+             <hr/>
+                 from
+        r
+    in
+        $0
+    where
+        r.indicator=='Economic Activity Rate: Working Age'&&
+        r.region!='Ukraine'&&r.Time.substring(0,4)=='2009'
+    select
+        {label:r.region,value:r.Value}
+            <hr/>
+
+    from
+        r
+    in
+        $0
+    where
+        r.indicator=='Economically Active Population: Working Age'&&
+        r.region!='Ukraine'&&r.Time.substring(0,4)=='2009'
+    select
+        {label:r.region,value:r.Value}
+ <hr/>
+
+    from
+         r
+    in
+         $0
+    where
+         r.region=='Ukraine'&&
+         r.Time.substring(0,4)=='2009'
+    select
+         {label:r.indicator, value:r.Value}
+     <hr/>
+                from
+                 r
+                 in $0 where r.region=='Ukraine'&&r.indicator=='Economically Active Population: 15-70 Years' orderby r.Time descending select {label:r.Time.substring(0,4), value:r.Value}
+
+         </span>
+        <br/>
+        Query:
+        <input type="text" ng-model="query" value="{{query}}"/>
+        Serie key
+        <input type="text" ng-model="serieKey" value="{{serieKey}}"/>
+
+        <button class="widget-type label radius"  ng-click="executeQuery()">
+            Execute
+        </button>
+        <button class="widget-type label radius"  ng-click="addSerie()">
+            Add to Chart
+        </button>
+        <button class="widget-type label radius"  ng-click="clearSeries()">
+            Clear Chart
+        </button>
+
+        <hr/>
+        Result:
+        <span style="font-size: smaller">
+                <pre><code>{{result | json}}</code></pre>
+        </span>
+    </div>
+
+</div>

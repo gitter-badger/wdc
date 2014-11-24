@@ -1,0 +1,127 @@
+<div style="font-size: small" ng-controller="DataSourceController" ng-show="globalConfig.designMode">
+    <span style="font-size: small; font-weight: bold">URL:</span>
+    <a href="{{url}}">{{url}}</a>
+    <br/>
+    <span style="font-size: small; font-weight: bold">Dataset:</span>
+    {{data.datasetName}}
+    <br/>
+
+
+
+    <div class="panel">
+
+        <div class="row">
+            <h4>Dimensions:</h4>
+            <div class="columns medium-3 container-top left" ng-repeat="d in dimensionList">
+                <h5>{{d.name}}</h5>
+
+                <div style="font-size: smaller; vertical-align: middle;"  ng-repeat="m in d.members">
+                    <input type="checkbox" style="margin-bottom: 0" ng-model="m.selected">
+                    <a ng-click="m.selected=!m.selected">&nbsp;{{m.value}}</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <button class="button tiny radius right" ng-click="getQuery()">Select</button>
+        </div>
+
+        <div class="row">
+            <h4>Fields:</h4>
+            <table style="padding: 0rem; margin: 0rem;">
+                <thead>
+                    <th>Field</th>
+                    <th>Serie Key</th>
+                    <th>Item Label</th>
+                    <th>Item Value</th>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="h in query1ResultHeader">
+                        <td>{{h}}</td>
+                        <td><input  type="radio"  name="serieKey" ng-model="serieKey" style="font-size: smaller; margin:0rem;"></td>
+                        <td><input  type="radio"  name="labelKey" ng-model="labelKey" style="font-size: smaller; margin:0rem;"></td>
+                        <td><input  type="radio"  name="valueKey" ng-model="valueKey" style="font-size: smaller; margin:0rem;"></td>
+                    </tr>
+                </tbody>
+            </table>
+         </div>
+    </div>
+    <div class="panel">
+        <table cellpadding="0px" cellspacing="0px" style="padding: 0px; margin: 0px;">
+            <thead>
+            <tr>
+                <th  ng-repeat="h in query1ResultHeader" style=" font-size: smaller">
+                    {{h}}
+                    <select style=" font-size: small; margin: 0rem; padding: 0rem; height:1.5rem">
+                        <option></option>
+                        <option>Serie</option>
+                        <option>Label</option>
+                        <option>Value</option>
+                    </select>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="r in query1Result">
+                <td ng-repeat="c in query1ResultHeader" style=" font-size: smaller" >
+                    {{(r[c])?r[c]:' - '}}
+                </td>
+            </tr>
+            </tbody>
+            <thead>
+                <tr>
+                    <th  ng-repeat="h in query1ResultHeader" style=" font-size: smaller">
+                        {{h}}
+                        <select style=" font-size: small; margin: 0rem; padding: 0rem; height:1.5rem">
+                            <option></option>
+                            <option>Serie</option>
+                            <option>Label</option>
+                            <option>Value</option>
+                        </select>
+                    </th>
+                </tr>
+            </thead>
+        </table>
+        Group Query:
+        <textarea style="font-size: large" ng-model="q2S">
+            from r
+            in $0
+            group
+            {value: r.Value, label:r.region}
+            by r.indicator
+            into d
+            select
+            {key:d.key, values:d.toArray()}
+        </textarea>
+        <div class="row">
+            <button class="button tiny radius right" ng-click="getSeries()">Get Series</button>
+        </div>
+    </div>
+
+    <div class="panel">
+            <div class="row" ng-repeat="s in series">
+                <h6>{{s.key}}</h6>
+                <table cellpadding="0px" cellspacing="0px" style="padding: 0px; margin: 0px;">
+
+                    <tr>
+                        <th style=" font-size: smaller">Label</th>
+                        <td ng-repeat="v in s.values" style=" font-size: smaller" >
+                            {{(v.label) ? v.label:' - '}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style=" font-size: smaller">Value</th>
+                        <td ng-repeat="v in s.values" style=" font-size: smaller" >
+                            {{(v.value) ? v.value : ' - '}}
+                        </td>
+                    </tr>
+
+                  </table>
+                <hr/>
+            </div>
+        </div>
+
+
+    <div ng-show="!url">Datasource not configured</div>
+
+</div>

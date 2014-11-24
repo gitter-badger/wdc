@@ -69,5 +69,194 @@
   },
   "widget-with-dependency": {
     "description": "Description of widget \"widget-with-dependency\""
+  },
+  "datasource": {
+    "description": "Load data from URL",
+    "schema": {
+      "type": "object",
+      "title": "Datasource",
+      "properties": {
+        "url": {
+          "title": "Set url",
+          "type": "string",
+          "format":"url"
+        }
+      }
+    }
+  },
+  "nvd3-bar": {
+    "description": "nvD3 Bar Chart",
+    "schema": {
+      "type": "object",
+      "title": "Chart Settings",
+      "properties": {
+        "datasource": {
+          "title": "Datasource name",
+          "type": "string"
+        },
+        "decoration": {
+          "type": "object",
+          "title": "Chart Decoration",
+          "properties": {
+            "title": {
+              "type": "object",
+              "title": "Title",
+              "format":"grid",
+              "properties": {
+                "text": {
+                  "title": "Text",
+                  "type": "string"
+                },
+                "class": {
+                  "title": "Class",
+                  "type": "string",
+                  "enum":["left", "right"]
+                }
+              }
+            },
+            "subtitle": {
+              "type": "object",
+              "title": "Subtitle",
+              "format":"grid",
+              "properties": {
+                "text": {
+                  "title": "Text",
+                  "type": "string"
+                },
+                "class": {
+                  "title": "Class",
+                  "type": "string"
+                }
+              }
+            },
+            "caption": {
+              "type": "object",
+              "title": "Caption",
+              "format":"grid",
+              "properties": {
+                "text": {
+                  "title": "Text",
+                  "type": "string"
+                },
+                "class": {
+                  "title": "Class",
+                  "type": "string"
+                }
+              }
+            },
+            "chart": {
+              "type": "object",
+              "title": "Chart",
+              "properties": {
+                "width": {
+                  "title": "Width",
+                  "type": "integer"
+                },
+                "height": {
+                  "title": "Height",
+                  "type": "integer"
+                },
+                "margin": {
+                  "title": "Margin",
+                  "type": "object",
+                  "format":"grid",
+                  "properties": {
+                    "top": {
+                      "title": "Top",
+                      "type": "integer"
+                    },
+                    "left": {
+                      "title": "Left",
+                      "type": "integer"
+                    },
+                    "bottom": {
+                      "title": "Bottom",
+                      "type": "integer"
+                    },
+                    "right": {
+                      "title": "Right",
+                      "type": "integer"
+                    }
+                  }
+                },
+                "rotateLabels": {
+                  "title": "Rotate Labels",
+                  "description":"Set angle for Label Rotation, like -45",
+                  "type": "integer"
+                },
+                "xAxis": {
+                  "title": "Axis X",
+                  "type": "object",
+                  "format":"grid",
+                  "properties": {
+                    "axisLabel": {
+                      "title": "Label",
+                      "type": "string"
+                    },
+                    "margin": {
+                      "title": "Margin",
+                      "type": "object",
+                      "format":"grid",
+                      "properties": {
+                        "top": {
+                          "title": "Top",
+                          "type": "integer"
+                        },
+                        "left": {
+                          "title": "Left",
+                          "type": "integer"
+                        },
+                        "bottom": {
+                          "title": "Bottom",
+                          "type": "integer"
+                        },
+                        "right": {
+                          "title": "Right",
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                },
+                "yAxis": {
+                  "title": "Axis Y",
+                  "type": "object",
+                  "format":"grid",
+                  "properties": {
+                    "axisLabel": {
+                      "title": "Label",
+                      "type": "string"
+                    },
+                    "margin": {
+                      "title": "Margin",
+                      "type": "object",
+                      "format":"grid",
+                      "properties": {
+                        "top": {
+                          "title": "Top",
+                          "type": "integer"
+                        },
+                        "left": {
+                          "title": "Left",
+                          "type": "integer"
+                        },
+                        "bottom": {
+                          "title": "Bottom",
+                          "type": "integer"
+                        },
+                        "right": {
+                          "title": "Right",
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

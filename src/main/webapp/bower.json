@@ -21,6 +21,8 @@
     "foundation-icon-fonts": "zurb/foundation-icon-fonts",
     "angular-foundation": "^0.4",
     "angular-mocks": "^1.3.3",
-    "angular-json-editor": "^0.1.1"
+    "angular-json-editor": "^0.1.1",
+    "jsinq": "hoehrmann/jsinq",
+    "angular-nvd3": "~0.0.9"
   }
 }
