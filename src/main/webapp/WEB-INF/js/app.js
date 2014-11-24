@@ -80,25 +80,23 @@ define(['angular', 'angular-ui-router', 'angular-oclazyload',
                     return pageConfigPromise.then(function (pageConfig) {
                         var url = appUrls.templateHTML(pageConfig.template);
                         return $http.get(url, {cache: $templateCache})
-                                .then(function (result) {
-                                    return result.data;
-                                });
+                            .then(function (result) {
+                                return result.data;
+                            });
                     });
                 },
                 controller: 'PageCtrl'
             });
     });
 
-    app.factory('alert', function ($modal, $log) {
-        return {
-            error: function (msg) {
-                $log.error(msg);
-                $modal.open({
-                    template: msg,
-                    windowClass: "error-message"
-                });
-            }
-        }
+    app.service('alert', function ($modal, $log) {
+        this.error = function (msg) {
+            $log.error(msg);
+            $modal.open({
+                template: msg,
+                windowClass: "error-message"
+            });
+        };
     });
 
     app.factory('widgetTypesPromise', function ($http, appUrls) {
@@ -109,58 +107,61 @@ define(['angular', 'angular-ui-router', 'angular-oclazyload',
         return $http.get(appUrls.appConfig);
     });
 
-    app.factory('appConfig', function ($http, $state, $stateParams, appConfigPromise, appUrls) {
-        var appConfig = {
-            config: {},
-            isAvailable: false,
-            sendingToServer: false,
-            isHomePageOpened: function () {
-                return $stateParams.href === '';
-            },
-            is404PageOpened: function () {
-                return $stateParams.href === '404';
-            },
-            pageIndexByHref: function (href) {
-                var result;
+    app.service('appConfig', function ($http, $state, $stateParams, appConfigPromise, appUrls) {
+        var self = this;
+        this.config = {};
+        this.isAvailable = false;
+        this.sendingToServer = false;
 
-                for (var i = 0; i < appConfig.config.pages.length; i++) {
-                    if (appConfig.config.pages[i].href === href) {
-                        result = i;
-                        break;
-                    }
-                    if (appConfig.config.pages[i].href === '404') {
-                        result = i;
-                    }
+        this.isHomePageOpened = function () {
+            return $stateParams.href === '';
+        };
+
+        this.is404PageOpened = function () {
+            return $stateParams.href === '404';
+        };
+
+        this.pageIndexByHref = function (href) {
+            var result;
+
+            for (var i = 0; i < self.config.pages.length; i++) {
+                if (self.config.pages[i].href === href) {
+                    result = i;
+                    break;
                 }
-                return result;
-            },
-            wasModified: true, // TODO: implement changing this state
-            deletePage: function (index) {
-                if (angular.isDefined(appConfig.config.pages) && angular.isDefined(appConfig.config.pages[index])) {
-                    appConfig.config.pages.splice(index, 1);
+                if (self.config.pages[i].href === '404') {
+                    result = i;
                 }
-                $state.go('page', {href: ''});
-            },
-            submitToServer: function (callback) {
-                appConfig.sendingToServer = true;
-                return $http.put(appUrls.appConfig, appConfig.config)
-                    .then(function () {
-                        appConfig.sendingToServer = false;
-                    }, function (data) {
-                        appConfig.sendingToServer = false;
-                        if (callback) {
-                            callback(data);
-                        }
-                    });
             }
+            return result;
+        };
+
+        this.wasModified = true; // TODO: implement changing this state
+
+        this.deletePage = function (index) {
+            if (angular.isDefined(self.config.pages) && angular.isDefined(self.config.pages[index])) {
+                self.config.pages.splice(index, 1);
+            }
+            $state.go('page', {href: ''});
+        };
+
+        this.submitToServer = function (callback) {
+            self.sendingToServer = true;
+            return $http.put(appUrls.self, self.config)
+                .then(function () {
+                    self.sendingToServer = false;
+                }, function (data) {
+                    self.sendingToServer = false;
+                    if (callback) {
+                        callback(data);
+                    }
+                });
         };
 
         appConfigPromise.success(function (data) {
-            appConfig.isAvailable = true;
-            appConfig.config = data;
+            self.isAvailable = true;
+            self.config = data;
         });
-
-        return appConfig;
     });
 
     app.service('widgetLoader', function ($q, $ocLazyLoad, widgetTypesPromise, appUrls) {
@@ -171,7 +172,7 @@ define(['angular', 'angular-ui-router', 'angular-oclazyload',
                 for (var i = 0; i < widgets.length; ++i) {
                     var widgetType = widgetTypesHTTP.data[widgets[i]];
                     if (angular.isUndefined(widgetType)) {
-                        return $q.reject('Widget "' + widgets[i] +'" doesn\'t exist!');
+                        return $q.reject('Widget "' + widgets[i] + '" doesn\'t exist!');
                     }
                     if (!widgetType.nojs) {
                         widgetControllers.push({
@@ -189,9 +190,10 @@ define(['angular', 'angular-ui-router', 'angular-oclazyload',
     app.constant('widgetSlots', {}); // providerName -> [{slotName, fn}]
 
     app.factory('APIProvider', function (widgetSlots) {
-        return function (scope) {
+        var APIProvider = function (scope) {
+            var self = this;
             var providerName = function () {
-                return scope.widget.instanceName;
+                return scope && scope.widget && scope.widget.instanceName;
             };
             scope.$on('$destroy', function () {
                 delete widgetSlots[providerName()];
@@ -209,41 +211,90 @@ define(['angular', 'angular-ui-router', 'angular-oclazyload',
                 });
                 return this;
             };
+
+            this.config = function (slotFn, enableReconfiguring) {
+                enableReconfiguring = enableReconfiguring === undefined ? true : enableReconfiguring;
+                slotFn();
+                if (enableReconfiguring) {
+                    self.provide(APIProvider.RECONFIG_SLOT, slotFn);
+                }
+                return this;
+            };
+
+            this.reconfig = function (slotFn) {
+                self.provide(APIProvider.RECONFIG_SLOT, slotFn);
+                return this;
+            };
         };
+
+        APIProvider.RECONFIG_SLOT = 'RECONFIG_SLOT';
+        return APIProvider;
     });
 
     app.factory('APIUser', function (widgetSlots) {
         return function (scope) {
             var userName = function () {
-                return scope.widget.instanceName;
+                return scope && scope.widget && scope.widget.instanceName;
             };
 
             this.invoke = function (providerName, slotName) {
                 if (!widgetSlots[providerName]) {
-                    return false;
+                    throw "Provider " + providerName + " doesn't exist";
                 }
-                // TODO invoke should return slot's return value
-                // check that there is only one slot
-                var called = false;
                 for (var i = 0; i < widgetSlots[providerName].length; i++) {
                     var slot = widgetSlots[providerName][i];
                     if (slot.slotName === slotName) {
-                        called = true;
-                        slot.fn.apply(undefined, [{
+                        return slot.fn.apply(undefined, [{
                             emitterName: userName(),
                             signalName: undefined
                         }].concat(Array.prototype.slice.call(arguments, 2)));
                     }
                 }
-                return called;
+                throw "Provider " + providerName + " doesn't have slot called " + slotName;
             };
+
+            this.tryInvoke = function (providerName, slotName) {
+                try {
+                    return {
+                        success: true,
+                        result: invoke(providerName, slotName) // might throw
+                    }
+                } catch (e) {
+                    if (typeof(e) === 'string' && e.indexOf("Provider") > -1) {
+                        return {
+                            success: false
+                        }
+                    } else {
+                        throw e;
+                    }
+                }
+            };
+
+            this.invokeAll = function (slotName) {
+                var called = false;
+                for (var providerName in widgetSlots) {
+                    if (widgetSlots.hasOwnProperty(providerName)) {
+                        for (var i = 0; i < widgetSlots[providerName].length; i++) {
+                            var slot = widgetSlots[providerName][i];
+                            if (slot.slotName === slotName) {
+                                called = true;
+                                slot.fn.apply(undefined, [{
+                                    emitterName: userName(),
+                                    signalName: undefined
+                                }].concat(Array.prototype.slice.call(arguments, 2)));
+                            }
+                        }
+                    }
+                }
+                return called;
+            }
         };
     });
 
     app.factory('EventEmitter', function (eventWires, widgetSlots, $log, $timeout, $rootScope) {
-        var EventPublisher =  function (scope) {
+        var EventPublisher = function (scope) {
             var emitterName = function () {
-                return scope.widget.instanceName;
+                return scope && scope.widget && scope.widget.instanceName;
             };
 
             this.emit = function (signalName) {
@@ -322,11 +373,12 @@ define(['angular', 'angular-ui-router', 'angular-oclazyload',
 
         $scope.alertAppConfigSubmissionFailed = function (data) {
             alert.error('Error submitting application configuration!<br>' +
-                'HTTP error ' + data.status + ': ' + data.statusText);
+            'HTTP error ' + data.status + ': ' + data.statusText);
         };
     });
 
-    app.controller('PageCtrl', function ($scope, $modal, pageConfig, alert, $window, widgetLoader, appUrls) {
+    app.controller('PageCtrl', function ($scope, $modal, pageConfig, alert, $window,
+                                         APIUser, APIProvider, widgetLoader, appUrls) {
         $scope.config = pageConfig;
         $scope.deleteIthWidgetFromHolder = function (holder, index) {
             holder.widgets.splice(index, 1);
@@ -349,16 +401,20 @@ define(['angular', 'angular-ui-router', 'angular-oclazyload',
                 }
             }).result.then(function (newWidgetConfig) {
                 angular.copy(newWidgetConfig, widget);
-            })
+                var user = new APIUser();
+                user.invokeAll(APIProvider.RECONFIG_SLOT);
+            });
         };
 
         $scope.addNewWidget = function (holder) {
             var widgetType = $window.prompt('Widget type (like summator):');
+            var instanceName = Math.random().toString(36).substring(2);
             if (widgetType) {
                 widgetLoader.load(widgetType)
                     .then(function () {
                         holder.widgets.push({
-                            type: widgetType
+                            type: widgetType,
+                            instanceName: instanceName
                         });
                     }, function (error) {
                         alert.error('Cannot add widget: ' + error);
@@ -385,49 +441,33 @@ define(['angular', 'angular-ui-router', 'angular-oclazyload',
         }
     });
 
-
-    app.service('widgetConfigEditor', function () {
-        var data = {};
-        this.setData = function (newData) {
-            data = newData;
-        };
-        this.getData = function () {
-            return data;
-        };
-    });
-
-    app.controller('WidgetModalSettingsController', function ($scope, $modalInstance, widgetConfig, widgetType, widgetConfigEditor) {
+    app.controller('WidgetModalSettingsController', function ($scope, $modalInstance, widgetConfig, widgetType) {
         $scope.widgetType = widgetType;
         $scope.widgetConfig = angular.copy(widgetConfig);
         delete $scope.widgetConfig.instanceName;
         delete $scope.widgetConfig.type;
+        var data = $scope.widgetConfig;
         $scope.basicProperties = {
             type: widgetConfig.type,
             instanceName: widgetConfig.instanceName
         };
 
         $scope.ok = function () {
-            $modalInstance.close(angular.extend(widgetConfigEditor.getData(), $scope.basicProperties));
+            $modalInstance.close(angular.extend(data, $scope.basicProperties));
         };
 
         $scope.cancel = function () {
             $modalInstance.dismiss();
         };
+
+        $scope.updateData = function (value) {
+            data = value;
+        };
     });
 
-    app.controller('WidgetModalConfigButtonsController', function ($scope, widgetConfigEditor) {
-        var subscribed = false;
-        $scope.$watch('editor', function (editor) {
-            if (!subscribed && editor.on) {
-                editor.on('change', function () {
-                    widgetConfigEditor.setData(editor && editor.getValue());
-                });
-                subscribed = true;
-            }
-        });
-    });
+    app.controller('WidgetModalConfigButtonsController', angular.noop);
 
     return angular.bootstrap(document, ['app'], {
-        strictDi: false // should be false when non-minified js is used
+        strictDi: false
     });
 });
