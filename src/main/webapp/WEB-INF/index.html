@@ -4,12 +4,8 @@
     <base href="/">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link inline rel="stylesheet" href="/components/foundation/css/normalize.css"/>
-    <link inline rel="stylesheet" href="/components/foundation/css/foundation.css"/>
-    <!--<link inline rel="stylesheet" href="/components/SCEditor/minified/jquery.sceditor.default.min.css"/>-->
     <link inline rel="stylesheet" href="/components/SCEditor/minified/themes/default.min.css"/>
-    <!-- Don't use inline because of relative paths used in foundation-icons.css for loading fonts -->
-    <link rel="stylesheet" href="/components/foundation-icon-fonts/foundation-icons.css"/>
+    <link inline rel="stylesheet" href="/components/bootstrap/dist/css/bootstrap.css"/>
     <link inline rel="stylesheet" href="/css/main.css"/>
     <script inline src="/components/requirejs/require.js"></script>
     <script inline src="/js/main.js"></script>
@@ -18,26 +14,26 @@
 
   <body ng-controller="MainCtrl" ng-class="{'debug-enabled': globalConfig.debugMode}">
   <header class="row">
-    <div class="large-3 columns">
+    <div class="col-lg-3">
       <h1><img src="/img/logo.gif"/></h1>
     </div>
-    <div class="large-9 columns">
-      <ul class="inline-list right">
+    <div class="col-lg-9">
+      <ul class="list-inline pull-right">
         <li ng-repeat="section in appConfig.config.sections"><a href="/404" ng-bind="section"></a></li>
       </ul>
     </div>
   </header>
 
   <div class="row">
-    <div class="large-9 push-3 columns" id="page-view">
+    <div class="col-lg-9 col-lg-push-3" id="page-view">
       <div ng-if="globalConfig.designMode" id="page-design-panel">
         <h3>Design mode panel</h3>
-        <button class="button tiny radius" ng-click="appConfig.submitToServer(alertAppConfigSubmissionFailed)"
+        <button class="btn btn-primary" ng-click="appConfig.submitToServer(alertAppConfigSubmissionFailed)"
                 id="submitChangesToServerBtn"
                 ng-disabled="appConfig.sendingToServer || !appConfig.wasModified">
           Submit changes to server
         </button>
-        <button class="button alert radius tiny"
+        <button class="btn btn-danger"
                 id="deletePageBtn"
                 ng-disabled="appConfig.isHomePageOpened() || appConfig.is404PageOpened()"
                 disabled
@@ -51,7 +47,7 @@
       </div>
     </div>
 
-    <nav class="large-3 pull-9 columns">
+    <nav class="col-lg-3 col-lg-pull-9">
       <ul class="side-nav">
         <li ng-repeat="page in appConfig.config.pages" ng-if="page.shortTitle"><a href="/{{page.href}}" ng-bind="page.shortTitle"></a></li>
       </ul>
@@ -69,14 +65,14 @@
   </div>
 
   <footer class="row">
-    <div class="large-12 columns">
+    <div class="col-lg-12">
       <hr/>
       <div class="row">
-        <div class="large-6 columns">
+        <div class="col-lg-6">
           <p>&copy; Copyright</p>
         </div>
-        <div class="large-6 columns">
-          <ul class="inline-list right">
+        <div class="col-lg-6">
+          <ul class="list-inline pull-right">
             <li ng-repeat="section in appConfig.config.sections"><a href="/404" ng-bind="section"></a></li>
           </ul>
         </div>

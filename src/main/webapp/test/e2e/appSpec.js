@@ -66,7 +66,7 @@ describe("Webapp", function () {
             browser.setLocation('/dev-page');
             var summator = $('widget-holder[name=topleft]').$$('.widget').first();
             summator.$('.widget-config-btn').click();
-            var reveal = $('.reveal-modal');
+            var reveal = $('.modal-dialog');
             reveal.element(by.linkText("Custom settings")).click();
             reveal.element(by.cssContainingText('option', 'true')).click();
             reveal.all(by.buttonText('Save')).last().click();

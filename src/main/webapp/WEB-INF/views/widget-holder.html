@@ -1,10 +1,10 @@
 <div ng-repeat="widget in holder.widgets" class="widget">
   <div ng-show="globalConfig.designMode">
     <div class="widget-design-panel clearfix">
-      <span class="widget-name left" ng-bind="widget.instanceName"></span>
-      <span class="widget-type label radius left" ng-bind="widget.type"></span>
-      <span class="widget-delete-btn right" ng-click="deleteIthWidgetFromHolder(holder, $index)"><i class="glyphicon fi-x"></i></span>
-      <span class="widget-config-btn right" ng-click="openWidgetConfigurationDialog(widget)"><i class="glyphicon fi-wrench"></i></span>
+      <span class="widget-name pull-left" ng-bind="widget.instanceName"></span>
+      <span class="widget-type label radius pull-left" ng-bind="widget.type"></span>
+      <span class="widget-delete-btn pull-right" ng-click="deleteIthWidgetFromHolder(holder, $index)"><i class="glyphicon glyphicon-remove"></i></span>
+      <span class="widget-config-btn pull-right" ng-click="openWidgetConfigurationDialog(widget)"><i class="glyphicon glyphicon-wrench"></i></span>
     </div>
   </div>
   <div ng-include="widgetTemplateUrl(widget.type)"
@@ -14,8 +14,8 @@
   </div>
 </div>
 <div ng-show="globalConfig.designMode" class="text-center">
-  <button class="button radius small" ng-click="addNewWidget(holder)">
-    <i class="fi-plus black"></i> Add new widget
+  <button class="btn btn-primary" ng-click="addNewWidget(holder)">
+    <i class="glyphicon glyphicon-plus black"></i> Add new widget
   </button>
 </div>
 <div ng-show="!holder.widgets && !globalConfig.designMode" class="widget text-center">

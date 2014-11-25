@@ -1,7 +1,7 @@
 define(['angular', 'angular-ui-router', 'angular-oclazyload',
-    'angular-foundation', 'angular-json-editor', 'template-cached-pages', 'sceditor'], function (angular) {
+    'angular-bootstrap', 'angular-json-editor', 'template-cached-pages', 'sceditor'], function (angular) {
     "use strict";
-    var app = angular.module('app', ['ui.router', 'oc.lazyLoad', 'mm.foundation',
+    var app = angular.module('app', ['ui.router', 'oc.lazyLoad', 'ui.bootstrap',
         'angular-json-editor', 'templates']);
 
     app.constant('appUrls', {
@@ -33,8 +33,6 @@ define(['angular', 'angular-ui-router', 'angular-oclazyload',
         JSONEditorProvider.configure({
             defaults: {
                 options: {
-                    iconlib: 'foundation3',
-                    theme: 'foundation5',
                     required_by_default: true
                 }
             },
