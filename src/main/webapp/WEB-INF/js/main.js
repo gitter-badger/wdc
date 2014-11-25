@@ -7,7 +7,7 @@ require.config({
         'template-cached-pages': 'js/templates',
         'angular-ui-router': 'components/angular-ui-router/release/angular-ui-router',
         'angular-oclazyload': 'components/oclazyload/dist/ocLazyLoad',
-        'angular-foundation': 'components/angular-foundation/mm-foundation-tpls',
+        'angular-bootstrap': 'components/angular-bootstrap/ui-bootstrap-tpls',
         'angular-json-editor': 'components/angular-json-editor/src/angular-json-editor',
         'json-editor': 'components/json-editor/dist/jsoneditor',
         'leaflet': 'components/leaflet/dist/leaflet',
@@ -29,7 +29,7 @@ require.config({
         'angular-leaflet': ['angular', 'leaflet'],
         'angular-ui-router': ['angular'],
         'angular-oclazyload': ['angular'],
-        'angular-foundation': ['angular'],
+        'angular-bootstrap': ['angular'],
         'angular-json-editor': ['angular', 'json-editor'],
         'template-cached-pages': ['angular']
     },
