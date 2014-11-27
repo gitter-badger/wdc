@@ -1,5 +1,5 @@
-define(['angular', 'angular-ui-router', 'angular-oclazyload',
-    'angular-bootstrap', 'angular-json-editor', 'template-cached-pages', 'sceditor'], function (angular) {
+define(['angular', 'jquery', 'angular-ui-router', 'angular-oclazyload',
+    'angular-bootstrap', 'angular-json-editor', 'template-cached-pages', 'sceditor'], function (angular, $) {
     "use strict";
     var app = angular.module('app', ['ui.router', 'oc.lazyLoad', 'ui.bootstrap',
         'angular-json-editor', 'templates']);
@@ -451,7 +451,7 @@ define(['angular', 'angular-ui-router', 'angular-oclazyload',
         }
     });
 
-    app.controller('WidgetModalSettingsController', function ($scope, $modalInstance, widgetConfig, widgetType) {
+    app.controller('WidgetModalSettingsController', function ($scope, $modalInstance, $timeout, widgetConfig, widgetType) {
         $scope.widgetType = widgetType;
         $scope.widgetConfig = angular.copy(widgetConfig);
         delete $scope.widgetConfig.instanceName;
@@ -473,6 +473,10 @@ define(['angular', 'angular-ui-router', 'angular-oclazyload',
         $scope.updateData = function (value) {
             data = value;
         };
+
+        $timeout(function () {
+            $('json-editor .sceditor-container iframe').height('20rem').width('98%');
+        }, 0);
     });
 
     app.controller('WidgetModalConfigButtonsController', angular.noop);
