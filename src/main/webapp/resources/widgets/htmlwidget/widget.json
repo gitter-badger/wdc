@@ -1,0 +1,17 @@
+{
+  "description": "Description of widget \"htmlwidget\"",
+  "schema": {
+    "type": "object",
+    "title": "Visual editor",
+    "properties": {
+      "text": {
+        "title": "Edit html code",
+        "format": "html",
+        "type": "string",
+        "options": {
+          "wysiwyg": true
+        }
+      }
+    }
+  }
+}

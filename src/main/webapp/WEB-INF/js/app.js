@@ -1,8 +1,8 @@
-define(['angular', 'jquery', 'angular-ui-router', 'angular-oclazyload',
+define(['angular', 'jquery', 'js/widget-api', 'angular-ui-router', 'angular-oclazyload',
     'angular-bootstrap', 'angular-json-editor', 'template-cached-pages', 'sceditor'], function (angular, $) {
     "use strict";
     var app = angular.module('app', ['ui.router', 'oc.lazyLoad', 'ui.bootstrap',
-        'angular-json-editor', 'templates']);
+        'angular-json-editor', 'templates', 'app.widgetApi']);
 
     app.constant('appUrls', {
         appConfig: '/apps/app.json',
@@ -39,9 +39,7 @@ define(['angular', 'jquery', 'angular-ui-router', 'angular-oclazyload',
             plugins: {
               sceditor: {
                   style: '/components/SCEditor/minified/jquery.sceditor.default.min.css',
-                  resizeWidth: false,
-                  height: '300',
-                  width: '100%'
+                  resizeWidth: false
               }
             }
         });
@@ -197,178 +195,6 @@ define(['angular', 'jquery', 'angular-ui-router', 'angular-oclazyload',
         }
     });
 
-    app.constant('eventWires', {}); // emitterName -> [{signalName, providerName, slotName}]
-    app.constant('widgetSlots', {}); // providerName -> [{slotName, fn}]
-
-    app.factory('APIProvider', function (widgetSlots) {
-        var APIProvider = function (scope) {
-            var self = this;
-            var providerName = function () {
-                return scope && scope.widget && scope.widget.instanceName;
-            };
-            scope.$on('$destroy', function () {
-                delete widgetSlots[providerName()];
-            });
-
-            this.provide = function (slotName, slot) {
-                if (typeof slot !== 'function') {
-                    throw "Second argument should be a function, " +
-                        (typeof slot) + "passed instead";
-                }
-                widgetSlots[providerName()] = widgetSlots[providerName()] || [];
-                widgetSlots[providerName()].push({
-                    slotName: slotName,
-                    fn: slot
-                });
-                return this;
-            };
-
-            this.config = function (slotFn, enableReconfiguring) {
-                enableReconfiguring = enableReconfiguring === undefined ? true : enableReconfiguring;
-                slotFn();
-                if (enableReconfiguring) {
-                    self.provide(APIProvider.RECONFIG_SLOT, slotFn);
-                }
-                return this;
-            };
-
-            this.reconfig = function (slotFn) {
-                self.provide(APIProvider.RECONFIG_SLOT, slotFn);
-                return this;
-            };
-        };
-
-        APIProvider.RECONFIG_SLOT = 'RECONFIG_SLOT';
-        return APIProvider;
-    });
-
-    app.factory('APIUser', function (widgetSlots) {
-        return function (scope) {
-            var userName = function () {
-                return scope && scope.widget && scope.widget.instanceName;
-            };
-
-            this.invoke = function (providerName, slotName) {
-                if (!widgetSlots[providerName]) {
-                    throw "Provider " + providerName + " doesn't exist";
-                }
-                for (var i = 0; i < widgetSlots[providerName].length; i++) {
-                    var slot = widgetSlots[providerName][i];
-                    if (slot.slotName === slotName) {
-                        return slot.fn.apply(undefined, [{
-                            emitterName: userName(),
-                            signalName: undefined
-                        }].concat(Array.prototype.slice.call(arguments, 2)));
-                    }
-                }
-                throw "Provider " + providerName + " doesn't have slot called " + slotName;
-            };
-
-            this.tryInvoke = function (providerName, slotName) {
-                try {
-                    return {
-                        success: true,
-                        result: invoke(providerName, slotName) // might throw
-                    }
-                } catch (e) {
-                    if (typeof(e) === 'string' && e.indexOf("Provider") > -1) {
-                        return {
-                            success: false
-                        }
-                    } else {
-                        throw e;
-                    }
-                }
-            };
-
-            this.invokeAll = function (slotName) {
-                var called = false;
-                for (var providerName in widgetSlots) {
-                    if (widgetSlots.hasOwnProperty(providerName)) {
-                        for (var i = 0; i < widgetSlots[providerName].length; i++) {
-                            var slot = widgetSlots[providerName][i];
-                            if (slot.slotName === slotName) {
-                                called = true;
-                                slot.fn.apply(undefined, [{
-                                    emitterName: userName(),
-                                    signalName: undefined
-                                }].concat(Array.prototype.slice.call(arguments, 2)));
-                            }
-                        }
-                    }
-                }
-                return called;
-            }
-        };
-    });
-
-    app.factory('EventEmitter', function (eventWires, widgetSlots, $log, $timeout, $rootScope) {
-        var EventPublisher = function (scope) {
-            var emitterName = function () {
-                return scope && scope.widget && scope.widget.instanceName;
-            };
-
-            this.emit = function (signalName) {
-                var args = Array.prototype.slice.call(arguments, 1);
-
-                $rootScope.$evalAsync(function () {
-                    if (!emitterName() || typeof emitterName() !== "string") {
-                        $log.info("Not emitting event because widget's instanceName is not set");
-                    }
-                    var wires = eventWires[emitterName()];
-                    if (!wires) {
-                        return;
-                    }
-                    for (var i = 0; i < wires.length; i++) {
-                        var wire = wires[i];
-                        if (wire && wire.signalName === signalName) {
-
-                            var slots = widgetSlots[wire.providerName];
-                            if (!slots) {
-                                continue;
-                            }
-
-                            for (var j = 0; j < slots.length; j++) {
-                                if (!slots[j] || slots[j].slotName !== wire.slotName) continue;
-                                slots[j].fn.apply(undefined, [{
-                                    emitterName: emitterName(),
-                                    signalName: signalName
-                                }].concat(args));
-                            }
-                        }
-                    }
-                });
-            };
-        };
-
-        EventPublisher.wireSignalWithSlot = function (emitterName, signalName, provideName, slotName) {
-            eventWires[emitterName] = eventWires[emitterName] || [];
-            eventWires[emitterName].push({
-                signalName: signalName,
-                providerName: provideName,
-                slotName: slotName
-            });
-        };
-
-        EventPublisher.replacePageSubscriptions = function (subsriptions) {
-            for (var emitterName in eventWires) {
-                if (eventWires.hasOwnProperty(emitterName)) {
-                    delete eventWires[emitterName];
-                }
-            }
-
-            if (!subsriptions) {
-                return;
-            }
-            for (var i = 0; i < subsriptions.length; i++) {
-                var s = subsriptions[i];
-                EventPublisher.wireSignalWithSlot(s.emitter, s.signal, s.receiver, s.slot);
-            }
-        };
-
-        return EventPublisher;
-    });
-
     app.controller('MainCtrl', function ($scope, alert, appConfig) {
         var cnf = $scope.globalConfig = {
             debugMode: false,
@@ -391,7 +217,9 @@ define(['angular', 'jquery', 'angular-ui-router', 'angular-oclazyload',
                                          APIUser, APIProvider, widgetLoader, appUrls) {
         $scope.config = pageConfig;
         $scope.deleteIthWidgetFromHolder = function (holder, index) {
-            holder.widgets.splice(index, 1);
+            var removedWidget = holder.widgets.splice(index, 1)[0];
+            var user = new APIUser();
+            user.tryInvoke(removedWidget.instanceName, APIProvider.DESTROY_SLOT);
         };
 
         $scope.openWidgetConfigurationDialog = function (widget) {
@@ -475,6 +303,8 @@ define(['angular', 'jquery', 'angular-ui-router', 'angular-oclazyload',
         };
 
         $timeout(function () {
+            // HORRIBLE HACK!
+            // sceditor doesn't want to play with foundation modal dialogs nicely.
             $('json-editor .sceditor-container iframe').height('20rem').width('98%');
         }, 0);
     });
