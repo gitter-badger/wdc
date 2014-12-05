@@ -1,0 +1,7 @@
+{
+  "name": "angular-amchart",
+  "private": true,
+  "dependencies": {
+    "amcharts":"ChimpStudios/AmCharts"
+  }
+}
