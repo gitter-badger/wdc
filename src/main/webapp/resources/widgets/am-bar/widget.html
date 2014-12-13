@@ -1,10 +1,16 @@
 <html ng-app="app.widgets.am-bar">
 <title></title>
 <body>
-<div ng-controller="AmBarChartCtrl as amchrt">
-    {{amchrt.products}}
+
+<div ng-controller = "fessCntrl">
+    <button ng-click="toggleLoading()">Loading?</button>
+    <button ng-click="toggleLabels()">Toggle data labels</button>
+    <select ng-model="selectedChartType" ng-options="selectedChartType  for selectedChartType in chartTypes" ng-change="seriesTypeChange(selectedChartType)"></select>
+    <my-elem config="chartConfig"> </my-elem>
 </div>
 
-<div product-reviews></div product-reviews>
+
+
+</div>
 </body>
 </html>
