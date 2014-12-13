@@ -3,8 +3,8 @@ define([
         '/widgets/angular-amchart/angular-amchart-directive.js'
     ],
     function (angular) {
-    var app = angular.module('app.widgets.am-bar', []);
-    app.controller('AmBarChartCtrl',
+    var m = angular.module('app.widgets.am-bar', []);
+    m.controller('AmBarChartCtrl',
            function ($scope, EventEmitter, APIProvider, APIUser) {
 
            this.products = gems;
@@ -14,10 +14,9 @@ define([
 
     });
 
-  app.directive("productReviews", function() {
+  m.directive("productReviews", function() {
     return {
-      restrict: 'E',
-      template: '<div id="chardiv" style="width: 800px; height: 600px;"></div>';
+      template: '<div id="chardiv" style="width: 800px; height: 600px;"></div>'
     };
   });
 
