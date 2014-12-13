@@ -12,28 +12,14 @@ define([
 
            console.log(AmCharts);
 
-
-         var chart = AmCharts.makeChart( "chardiv" ,{
-         	"type": "serial",
-         	"categoryField": "category",
-         	"graphs": [
-         		{
-         			"valueField": "value"
-         		}
-         	],
-         	"dataProvider": [
-         		{
-         			"category": "category 1",
-         			"value": 8,
-         		},
-         		{
-         			"category": "category 2",
-         			"value": 4,
-         		}
-         	]
-         });
     });
 
+  app.directive("productReviews", function() {
+    return {
+      restrict: 'E',
+      template: '<div id="chardiv" style="width: 800px; height: 600px;"></div>';
+    };
+  });
 
 
     });
